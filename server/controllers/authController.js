@@ -1,63 +1,90 @@
-
-// SIGNUP LOGIC
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+/**
+ * SIGNUP LOGIC
+ * Creates a new user, hashes password, and returns a JWT
+ */
 exports.signup = async (req, res) => {
-  console.log("📥 Signup Request Aayi:", req.body); // Check karo data aa raha hai ya nahi
-
   try {
     const { name, email, password } = req.body;
 
     // 1. Check if User exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      console.log("❌ User already exists");
       return res.status(400).json({ msg: 'User already exists' });
     }
 
-    // 2. Hash Password
-    console.log("🔐 Hashing password...");
+    // 2. Hash Password (bcrypt salt)
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 3. Save User
-    console.log("💾 Saving user to DB...");
-    const user = new User({ name, email, password: hashedPassword });
+    // 3. Save User to Database
+    const user = new User({ 
+      name, 
+      email, 
+      password: hashedPassword 
+    });
+    
     await user.save();
-    console.log("✅ User saved successfully!");
 
-    // 4. Generate Token
-    console.log("🎟️ Generating JWT...");
+    // 4. Generate JWT Token
     if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET is missing in .env file!");
+      return res.status(500).json({ msg: "Internal Server Error: Missing JWT Secret" });
     }
     
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { id: user._id }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '7d' }
+    );
     
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    res.status(201).json({ 
+      token, 
+      user: { id: user._id, name: user.name, email: user.email } 
+    });
 
   } catch (err) {
-    console.error("💥 SERVER ERROR DETAILS:", err.message); // Ye terminal mein error dikhayega
-    res.status(500).json({ error: err.message }); // Ye Postman mein error dikhayega
+    console.error("Signup Error:", err.message);
+    res.status(500).json({ msg: 'Server Error during registration' });
   }
 };
 
-// LOGIN LOGIC
+/**
+ * LOGIN LOGIC
+ * Validates credentials and returns a JWT
+ */
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // 1. Check user existence
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ msg: 'User does not exist' });
+    if (!user) {
+      return res.status(400).json({ msg: 'Invalid Credentials' });
+    }
 
+    // 2. Compare hashed passwords
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'Invalid Credentials' });
+    }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    // 3. Generate JWT Token
+    const token = jwt.sign(
+      { id: user._id }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '7d' }
+    );
+
+    res.json({ 
+      token, 
+      user: { id: user._id, name: user.name, email: user.email } 
+    });
 
   } catch (err) {
-    res.status(500).send('Server Error');
+    console.error("Login Error:", err.message);
+    res.status(500).json({ msg: 'Server Error during login' });
   }
 };

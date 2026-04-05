@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-// 🔥 Ensure kar tera import path sahi hai
 import heroBg from '../assets/bg.png'; 
 
 const Hero = () => {
@@ -9,57 +8,59 @@ const Hero = () => {
   return (
     <section className="relative h-[85vh] w-full flex items-center overflow-hidden bg-[#0a192f]">
       
-      {/* 1. Full-Screen Background Image (Stronger, More Solid) */}
+      {/* Background Layer with Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
           src={heroBg} 
-          alt="Academic Background" 
-          /* 🔥 Changes: opacity-25 ko opacity-70 kar diya, aur grayscale hata di */
-          className="w-full h-full object-cover opacity-70"
+          alt="Academic schedule background" 
+          className="w-full h-full object-cover opacity-60"
+          loading="eager"
         />
-        {/* 🔥 Change: Gradient Overlay ko bahut subtle (Halka) kar diya */}
-        <div className="absolute inset-0 bg-[#0a192f]/50"></div>
+        {/* Subtle dark gradient for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a192f] via-[#0a192f]/60 to-transparent"></div>
       </div>
 
-      {/* 2. Content Over Image (Left Aligned) */}
-      <div className="container mx-auto px-20 relative z-10">
+      {/* Main Hero Content */}
+      <div className="container mx-auto px-10 md:px-20 relative z-10">
         <div className="max-w-3xl space-y-8">
           
-          {/* 🔥 Change: Text par shadow aur background diya taaki read-able rahe */}
-          <div className="space-y-6 bg-[#0a192f]/80 p-6 rounded-2xl w-fit border border-blue-500/10">
-            <h1 className="text-7xl font-black text-white leading-[1.1] tracking-tight text-shadow-lg">
+          {/* Text Content Wrapper */}
+          <div className="space-y-6 bg-[#0a192f]/40 backdrop-blur-sm p-8 rounded-3xl border border-white/5 shadow-2xl">
+            <h1 className="text-6xl md:text-7xl font-black text-white leading-[1.1] tracking-tight">
               Schedule Exams <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
                 Without Chaos.
               </span>
             </h1>
 
-            <div className="space-y-3">
-              <p className="text-2xl text-slate-100 font-extrabold tracking-wide">
+            <div className="space-y-4">
+              <p className="text-2xl text-slate-100 font-bold tracking-wide">
                 Smart allotment for Mid-Sem & End-Sem.
               </p>
-              <p className="text-xl text-slate-300 leading-relaxed font-semibold max-w-xl">
-                100% conflict-free. Automatically handles slot mapping and skips academic holidays.
+              <p className="text-lg text-slate-300 leading-relaxed font-medium max-w-xl">
+                100% conflict-free. Automatically handles slot mapping, 
+                alternate day rotations, and skips academic holidays.
               </p>
             </div>
           </div>
 
-          <div className="pt-6">
+          {/* Call to Action Button */}
+          <div className="pt-4">
             <button 
               onClick={() => navigate('/generate')}
-              className="group relative bg-blue-600 text-white px-12 py-4 rounded-2xl font-bold text-lg hover:bg-blue-500 transition-all shadow-2xl shadow-blue-900/40 active:scale-95 overflow-hidden border border-blue-400/20"
+              className="group relative overflow-hidden bg-blue-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-500 transition-all active:scale-95 shadow-[0_20px_50px_rgba(37,99,235,0.3)]"
             >
-              <span className="relative z-10 font-black uppercase tracking-wider">Generate Timetable</span>
-              {/* Button Shine on Hover */}
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span className="relative z-10">Generate Timetable</span>
+              {/* Hover highlight effect */}
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* 🔥 Change: Bottom Glow ko bahut subtle (Halka) kar diya */}
-      <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-[#0a192f] to-transparent z-10"></div>
+      {/* Bottom fade transition */}
+      <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#0a192f] to-transparent z-10"></div>
     </section>
   );
 };
