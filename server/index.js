@@ -11,9 +11,20 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 
 // --- 1. CORE MIDDLEWARES ---
-app.use(cors());
-app.use(express.json()); // Parses incoming JSON requests
-app.use(express.urlencoded({ extended: true })); // Parses URL-encoded data
+
+// 🔥 CORS UPDATE: Frontend link allow kar diya hai
+app.use(cors({
+    origin: [
+        'https://smart-exam-scheduler-eta.vercel.app', // Tera Main Production Domain
+        'http://localhost:5173',                      // Local Development (Vite)
+        'http://localhost:3000'                       // Local Development (CRA)
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
+
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 
 // --- 2. DATABASE CONNECTION ---
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/timecodes';
@@ -22,7 +33,7 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log("✅ MongoDB Connected: Database is active"))
     .catch(err => {
         console.error("❌ MongoDB Connection Error:", err.message);
-        process.exit(1); // Stop server if DB connection fails
+        process.exit(1); 
     });
 
 // --- 3. ROUTES MAPPING ---
@@ -32,7 +43,6 @@ app.use('/api/users', userRoutes);
 
 // --- 4. GLOBAL ERROR HANDLERS ---
 
-// Handle 404 - Not Found
 app.use((req, res, next) => {
     res.status(404).json({
         success: false,
@@ -40,7 +50,6 @@ app.use((req, res, next) => {
     });
 });
 
-// Handle 500 - Internal Server Error
 app.use((err, req, res, next) => {
     console.error("Internal Error:", err.stack);
     res.status(err.status || 500).json({
@@ -54,6 +63,6 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
     console.log(`\n🚀 TIMECODES SERVER RUNNING`);
-    console.log(`🔗 Local: http://localhost:${PORT}`);
+    console.log(`🔗 API Base: /api`);
     console.log(`🛠️  Ready for timetable generation\n`);
 });
