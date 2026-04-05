@@ -10,6 +10,9 @@ const Auth = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const navigate = useNavigate();
 
+  // Yahan tera Render Backend URL hai
+  const BACKEND_URL = "https://smart-exam-scheduler-jwva.onrender.com";
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -19,16 +22,15 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // Endpoint logic: /api/auth/login ya /api/auth/signup
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
-      const response = await axios.post(`http://localhost:5000${endpoint}`, formData);
+      const response = await axios.post(`${BACKEND_URL}${endpoint}`, formData);
 
       if (response.data.token) {
-        // Essential data storage for history and session
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', response.data.user.name);
         localStorage.setItem('userId', response.data.user.id || response.data.user._id);
         
-        // Navigation instead of window.reload for better SPA performance
         navigate('/');
       }
     } catch (err) {
@@ -41,7 +43,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-[#020617] flex items-center justify-center relative overflow-hidden">
       
-      {/* Dynamic Background Glows */}
+      {/* Background Glows */}
       <div className="absolute top-[-10%] left-[-10%] w-[800px] h-[800px] bg-blue-600/10 blur-[180px] rounded-full"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/5 blur-[150px] rounded-full"></div>
 
@@ -50,7 +52,6 @@ const Auth = () => {
         animate={{ opacity: 1 }}
         className="w-full h-screen flex flex-col md:flex-row z-10"
       >
-        
         {/* Left Side: Branding Section */}
         <div className="hidden md:flex md:w-7/12 h-full relative flex-col justify-center p-20 bg-slate-950/40">
           <div className="relative z-10 space-y-6">
@@ -78,7 +79,6 @@ const Auth = () => {
 
         {/* Right Side: Form Section */}
         <div className="w-full md:w-5/12 h-full bg-[#030712]/90 backdrop-blur-2xl p-8 md:p-24 flex flex-col justify-center border-l border-white/5">
-          
           <AnimatePresence mode="wait">
             <motion.div
               key={isLogin ? 'login' : 'signup'}
@@ -104,7 +104,7 @@ const Auth = () => {
                     <input 
                       name="name"
                       type="text" 
-                      placeholder="Organization Name / Admin Name" 
+                      placeholder="Admin Name" 
                       onChange={handleChange}
                       className="w-full bg-slate-900/80 border border-white/10 p-4 pl-12 rounded-2xl text-white outline-none focus:border-blue-500 transition-all placeholder:text-slate-700" 
                       required 
@@ -117,7 +117,7 @@ const Auth = () => {
                   <input 
                     name="email"
                     type="email" 
-                    placeholder="Admin Email Address" 
+                    placeholder="Email Address" 
                     onChange={handleChange}
                     className="w-full bg-slate-900/80 border border-white/10 p-4 pl-12 rounded-2xl text-white outline-none focus:border-blue-500 transition-all placeholder:text-slate-700" 
                     required 
@@ -129,7 +129,7 @@ const Auth = () => {
                   <input 
                     name="password"
                     type="password" 
-                    placeholder="Security Password" 
+                    placeholder="Password" 
                     onChange={handleChange}
                     className="w-full bg-slate-900/80 border border-white/10 p-4 pl-12 rounded-2xl text-white outline-none focus:border-blue-500 transition-all placeholder:text-slate-700" 
                     required 
@@ -158,7 +158,6 @@ const Auth = () => {
                   </span>
                 </button>
               </div>
-
             </motion.div>
           </AnimatePresence>
 

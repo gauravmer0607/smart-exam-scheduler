@@ -14,17 +14,18 @@ const Generate = () => {
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // PDF Generation: All semesters in a single document with landscape layout
+  // --- CONFIGURATION ---
+  const BACKEND_URL = "https://smart-exam-scheduler-jwva.onrender.com";
+
+  // PDF Generation Logic (Same as before)
   const downloadAllInOnePDF = () => {
     try {
       const doc = new jsPDF('l', 'mm', 'a4'); 
       const groups = Object.keys(groupedSchedule);
-      
       if (groups.length === 0) return;
 
       groups.forEach((group, index) => {
         if (index > 0) doc.addPage();
-        
         doc.setFontSize(18);
         doc.setTextColor(37, 99, 235);
         doc.text(`TIMECODES: ${group.replace('_', ' ')} Exam Schedule`, 14, 15);
@@ -50,7 +51,6 @@ const Generate = () => {
     }
   };
 
-  // CSV Parsing using PapaParse
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file && file.name.split('.').pop().toLowerCase() === 'csv') {
@@ -72,7 +72,15 @@ const Generate = () => {
     }
   };
 
+  // --- MAIN GENERATION LOGIC ---
   const generateSchedule = async () => {
+    const userId = localStorage.getItem('userId');
+    
+    if (!userId) {
+      alert("Session expired. Please login again.");
+      return;
+    }
+
     if (!formData.startDate || subjects.length === 0) {
       alert("Missing data: Select date and upload CSV.");
       return;
@@ -83,8 +91,9 @@ const Generate = () => {
       const monthYear = new Date(formData.startDate).toLocaleString('default', { month: 'short', year: 'numeric' });
       const customExamName = `${formData.examType} - ${monthYear}`;
 
-      const response = await axios.post("http://localhost:5000/api/timetable/generate", {
-        userId: localStorage.getItem('userId'), 
+      // POST Request to Render Backend
+      const response = await axios.post(`${BACKEND_URL}/api/timetable/generate`, {
+        userId: userId, 
         examName: customExamName,
         subjects,
         startDate: formData.startDate,
@@ -101,10 +110,12 @@ const Generate = () => {
           groups[key].push(item);
         });
         setGroupedSchedule(groups);
+        // Custom event to sync history if needed
         window.dispatchEvent(new Event("historyUpdated"));
       }
     } catch (err) {
-      alert("Server Error: Scheduling failed.");
+      console.error("Scheduling Error:", err);
+      alert(err.response?.data?.message || "Server Error: Scheduling failed.");
     } finally {
       setLoading(false);
     }
